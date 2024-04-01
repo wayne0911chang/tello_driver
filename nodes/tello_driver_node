@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 import rospy
 from std_msgs.msg import Empty, UInt8, Bool
 from std_msgs.msg import UInt8MultiArray
@@ -77,6 +77,10 @@ class TelloNode(tello.Tello):
 
 #########################################END#######################################    
     def __init__(self):
+        # debug
+        test_str = rospy.get_namespace();
+        rospy.loginfo("the ns: %s", test_str);
+        print("========================================================")
         self.local_cmd_client_port = int(
             rospy.get_param('~local_cmd_client_port', 8890))
         self.local_vid_server_port = int(
@@ -88,6 +92,11 @@ class TelloNode(tello.Tello):
             rospy.get_param('~connect_timeout_sec', 10.0))
         self.stream_h264_video = bool(
             rospy.get_param('~stream_h264_video', False))
+        
+        # setting interface name via ros param methods
+        self.ifname = str(
+            rospy.get_param('~ifname', None));
+
         self.bridge = CvBridge()
         self.frame_thread = None
 
@@ -99,7 +108,7 @@ class TelloNode(tello.Tello):
         self.fast_mode = False        
 #########################################END#######################################    
 
-        super(TelloNode, self).__init__(port=9000)
+        super(TelloNode, self).__init__(self.ifname, port=9000)
         rospy.loginfo('Connecting to drone @ %s:%d' % self.tello_addr)
         self.connect()
         try:
